@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -71,9 +72,32 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         });
 
         holder.noteDeleteButton.setOnClickListener(v -> {
-            DB.Delete(note.getNoteID());
-            notesList.remove(position);
-            notifyItemRemoved(position);
+
+            // Inside your NotesAdapter or wherever you delete a note
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Confirm Deletion");
+            builder.setMessage("Are you sure you want to delete this note?");
+
+            // Positive button for confirmation
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+
+                DB.Delete(note.getNoteID());
+                notesList.remove(position);
+                notifyItemRemoved(position);
+                dialog.dismiss();
+
+            });
+
+            // Negative button for cancellation
+            builder.setNegativeButton("No", (dialog, which) -> {
+
+                dialog.dismiss();
+            });
+
+            // Create and show the AlertDialog
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+
         });
     }
 

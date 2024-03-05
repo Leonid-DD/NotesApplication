@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void AddClick(View w){
+    public void AddClick(View w) {
         Intent i1 = new Intent(getApplicationContext(), AddNote.class);
         startActivity(i1);
     }

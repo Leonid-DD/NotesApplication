@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -57,10 +58,10 @@ public class EditNote extends AppCompatActivity {
         assert priorityACTV != null;
         priorityACTV.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, priorities));
 
-        categoryID = note.getNoteCategory() - 1;
-        categoryACTV.setText(categories[categoryID]);
-        priorityID = note.getNotePriority() - 1;
-        priorityACTV.setText(priorities[priorityID]);
+        categoryID = note.getNoteCategory();
+        categoryACTV.setText(categories[categoryID - 1]);
+        priorityID = note.getNotePriority();
+        priorityACTV.setText(priorities[priorityID - 1]);
 
         Button confirm = findViewById(R.id.confirmEdit);
         Button cancel = findViewById(R.id.cancelEdit);
@@ -107,19 +108,42 @@ public class EditNote extends AppCompatActivity {
 
                 if (!noteTitle.isEmpty() && !noteText.isEmpty() && !noteCategory.isEmpty() && !notePriority.isEmpty()) {
 
-                    ContentValues newValue = new ContentValues();
-                    newValue.put("title", noteTitle);
-                    newValue.put("note_text", noteText);
-                    newValue.put("category_id", categoryID);
-                    newValue.put("priority_id", priorityID);
+                    // Inside your EditNote activity or wherever you edit a note
+                    AlertDialog.Builder builder = new AlertDialog.Builder(EditNote.this);
+                    builder.setTitle("Confirm Edition");
+                    builder.setMessage("Are you sure you want to save the changes to this note?");
 
-                    DB.Update(noteID, newValue);
+                    // Positive button for confirmation
+                    builder.setPositiveButton("Yes", (dialog, which) -> {
 
-                    Toast.makeText(EditNote.this, "Note edited succesfully", Toast.LENGTH_SHORT).show();
+                        ContentValues newValue = new ContentValues();
+                        newValue.put("title", noteTitle);
+                        newValue.put("note_text", noteText);
+                        newValue.put("category_id", categoryID);
+                        newValue.put("priority_id", priorityID);
 
-                    finish();
-                }
-                else {
+                        DB.Update(noteID, newValue);
+
+                        dialog.dismiss();
+
+                        finish();
+
+                        // Optionally, navigate back to the previous screen or perform other actions
+                        finish();
+                    });
+
+                    // Negative button for cancellation
+                    builder.setNegativeButton("No", (dialog, which) -> {
+
+                        dialog.dismiss();
+                    });
+
+                    // Create and show the AlertDialog
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+
+
+                } else {
                     Toast.makeText(EditNote.this, "You didn't fill all fields", Toast.LENGTH_SHORT).show();
                 }
 

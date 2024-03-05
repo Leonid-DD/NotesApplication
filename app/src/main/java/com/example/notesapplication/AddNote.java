@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -95,14 +96,36 @@ public class AddNote extends AppCompatActivity {
 
                 if (!noteTitle.isEmpty() && !noteText.isEmpty() && !noteCategory.isEmpty() && !notePriority.isEmpty()) {
 
-                    Note note = new Note(0, noteTitle, noteText, categoryID, priorityID, false);
-                    DB.Insert(note);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddNote.this);
+                    builder.setTitle("Confirm Addition");
+                    builder.setMessage("Are you sure you want to add this note?");
 
-                    Toast.makeText(AddNote.this, "Note added succesfully", Toast.LENGTH_SHORT).show();
+                    // Positive button for confirmation
+                    builder.setPositiveButton("Yes", (dialog, which) -> {
 
-                    finish();
-                }
-                else {
+                        Note note = new Note(0, noteTitle, noteText, categoryID, priorityID, false);
+                        DB.Insert(note);
+
+                        dialog.dismiss();
+
+                        finish();
+
+                    });
+
+                    // Negative button for cancellation
+                    builder.setNegativeButton("No", (dialog, which) -> {
+                        // Cancel the addition or perform any other action
+                        // ...
+
+                        // Dismiss the dialog
+                        dialog.dismiss();
+                    });
+
+                    // Create and show the AlertDialog
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+
+                } else {
                     Toast.makeText(AddNote.this, "You didn't fill all fields", Toast.LENGTH_SHORT).show();
                 }
             }
