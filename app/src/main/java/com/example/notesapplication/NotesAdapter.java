@@ -1,17 +1,17 @@
 package com.example.notesapplication;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.notesapplication.Note;
-import com.example.notesapplication.R;
 
 import java.util.List;
 
@@ -52,13 +52,24 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         // Set the checkbox status
         holder.noteStatusCheckBox.setChecked(note.getNoteStatus());
 
+        holder.noteStatusCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ContentValues newValue = new ContentValues();
+                newValue.put("status", holder.noteStatusCheckBox.isChecked());
+                DB.Update(note.getNoteID(), newValue);
+            }
+        });
+
         // Set click listeners for buttons
         holder.noteEditButton.setOnClickListener(v -> {
             // Implement your edit logic here
         });
 
         holder.noteDeleteButton.setOnClickListener(v -> {
-            // Implement your delete logic here
+            DB.Delete(note.getNoteID());
+            notesList.remove(position);
+            notifyItemRemoved(position);
         });
     }
 
@@ -72,8 +83,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         TextView noteTextTextView;
         TextView noteCategoryPriorityTextView;
         CheckBox noteStatusCheckBox;
-        com.google.android.material.button.MaterialButton noteEditButton;
-        com.google.android.material.button.MaterialButton noteDeleteButton;
+        Button noteEditButton;
+        Button noteDeleteButton;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -86,12 +97,4 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         }
     }
 
-    private String getCategoryName(int categoryId) {
-        return "Category " + categoryId; // Replace with actual logic
-    }
-
-    private String getPriorityName(int priorityId) {
-        // Implement logic to get priority name based on priorityId
-        return "Priority " + priorityId; // Replace with actual logic
-    }
 }

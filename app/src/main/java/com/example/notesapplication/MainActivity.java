@@ -1,6 +1,7 @@
 package com.example.notesapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton addNote;
     DBHelper DB;
     List<Note> GlobalList;
+    NotesAdapter noteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +29,34 @@ public class MainActivity extends AppCompatActivity {
         DBCheck(String.valueOf(getApplicationContext().getDatabasePath("notes.db")));
         DB = DBHelper.getInstance(getApplicationContext());
 
+        GlobalList = DB.GetAllNotes();
+
         noteView = findViewById(R.id.notesRecyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        noteView.setLayoutManager(layoutManager);
+
         addNote = findViewById(R.id.addNoteImageButton);
+        addNote.setOnClickListener(this::AddClick);
+
+        noteAdapter = new NotesAdapter(getApplicationContext(), GlobalList);
+        noteView.setAdapter(noteAdapter);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshData();
+    }
+
+    private void refreshData() {
 
         GlobalList = DB.GetAllNotes();
 
-        NotesAdapter noteAdapter = new NotesAdapter(getApplicationContext(), GlobalList);
+        noteAdapter = new NotesAdapter(this, GlobalList);
         noteView.setAdapter(noteAdapter);
     }
+
 
     private void DBCheck(String path) {
         try {

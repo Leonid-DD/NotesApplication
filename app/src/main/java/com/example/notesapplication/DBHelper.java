@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -201,6 +202,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    public Map<String, Integer> populateCategory(Map<String, Integer> categoryMap) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CATEGORY, null);
+        while (cursor.moveToNext()) {
+            Integer itemId = cursor.getInt(0);
+            String itemName = cursor.getString(1);
+            categoryMap.put(itemName, itemId);
+        }
+        cursor.close();
+
+        return categoryMap;
+
+    }
+
     @SuppressLint("Range")
     public List<String> GetPriorities() {
 
@@ -244,6 +260,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.close();
         return priority;
+
+    }
+
+    public Map<String, Integer> populatePriority(Map<String, Integer> priorityMap) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PRIORITY, null);
+        while (cursor.moveToNext()) {
+            Integer itemId = cursor.getInt(0);
+            String itemName = cursor.getString(1);
+            priorityMap.put(itemName, itemId);
+        }
+        cursor.close();
+
+        return priorityMap;
 
     }
 
