@@ -7,13 +7,15 @@ public class Note {
     private String NoteText;
     private int NoteCategory;
     private int NotePriority;
+    private boolean NoteStatus;
 
-    public Note(int id, String name, String text, int category, int priority) {
+    public Note(int id, String name, String text, int category, int priority, boolean status) {
         this.ID = id;
         this.NoteName = name;
         this.NoteText = text;
         this.NoteCategory = category;
         this.NotePriority = priority;
+        this.NoteStatus = status;
     }
 
     public int getNoteID() {
@@ -27,13 +29,14 @@ public class Note {
         return NoteText;
     }
 
-    public String getNoteCategory() {
+    public int getNoteCategory() {
         return NoteCategory;
     }
 
-    public String getNotePriority() {
+    public int getNotePriority() {
         return NotePriority;
     }
+    public boolean getNoteStatus() { return NoteStatus; }
 
     public void setNoteID(int id) {
         ID = id;
@@ -47,11 +50,12 @@ public class Note {
         NoteText = noteText;
     }
 
-    public void setNoteCategory(String noteCategory) {
+    public void setNoteCategory(int noteCategory) {
         NoteCategory = noteCategory;
     }
 
-    public void setNotePriority(String notePriority) {
+    public void setNotePriority(int notePriority) {
         NotePriority = notePriority;
     }
+    public void setNoteStatus(boolean noteStatus) { NoteStatus = noteStatus; }
 }

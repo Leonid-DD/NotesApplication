@@ -21,82 +21,127 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return instance;
     }
-    private DBHelper(@Nullable Context context) {
-        super(context, "match.db", null, 1);
-    }
 
-    public String createTable = "CREATE TABLE Notes (\n" +
-            "    ID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-            "    NoteName TEXT,\n" +
-            "    NoteText TEXT,\n" +
-            "    NoteCategory INT,\n" +
-            "    NotePriority INT\n" +
-            ");";
-    public String dropTable = "DROP TABLE MatchResults";
+    private static final String TABLE_NOTES = "notes";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_TITLE = "title";
+    private static final String COLUMN_NOTE_TEXT = "note_text";
+    private static final String COLUMN_CATEGORY_ID = "category_id";
+    private static final String COLUMN_PRIORITY_ID = "priority_id";
+    private static final String COLUMN_STATUS = "status";
+
+    // Category reference table constants
+    private static final String TABLE_CATEGORY = "category";
+    private static final String COLUMN_CATEGORY_ID_REF = "id";
+    private static final String COLUMN_CATEGORY_NAME = "name";
+
+    // Priority reference table constants
+    private static final String TABLE_PRIORITY = "priority";
+    private static final String COLUMN_PRIORITY_ID_REF = "id";
+    private static final String COLUMN_PRIORITY_NAME = "name";
+
+    private DBHelper(@Nullable Context context) {
+        super(context, "notes.db", null, 1);
+    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(createTable);
+        String createNotesTable = "CREATE TABLE " + TABLE_NOTES + " ("
+                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_TITLE + " TEXT, "
+                + COLUMN_NOTE_TEXT + " TEXT, "
+                + COLUMN_CATEGORY_ID + " INTEGER, "
+                + COLUMN_PRIORITY_ID + " INTEGER, "
+                + COLUMN_STATUS + " INTEGER)";
+        db.execSQL(createNotesTable);
+
+        // Create category reference table
+        String createCategoryTable = "CREATE TABLE " + TABLE_CATEGORY + " ("
+                + COLUMN_CATEGORY_ID_REF + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_CATEGORY_NAME + " TEXT)";
+        db.execSQL(createCategoryTable);
+
+        // Create priority reference table
+        String createPriorityTable = "CREATE TABLE " + TABLE_PRIORITY + " ("
+                + COLUMN_PRIORITY_ID_REF + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_PRIORITY_NAME + " TEXT)";
+        db.execSQL(createPriorityTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int il) {
-        if (i != il) {
-            db.execSQL(dropTable);
-            onCreate(db);
+
+    }
+
+    public void Insert(Note note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TITLE, note.getNoteName());
+        values.put(COLUMN_NOTE_TEXT, note.getNoteText());
+        values.put(COLUMN_CATEGORY_ID, note.getNoteCategory());
+        values.put(COLUMN_PRIORITY_ID, note.getNotePriority());
+        values.put(COLUMN_STATUS, note.getNoteStatus() ? 1 : 0);
+        db.insert(TABLE_NOTES, null, values);
+        db.close();
+    }
+
+    public Note getNoteById(int noteId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_NOTES,
+                null,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(noteId)},
+                null,
+                null,
+                null
+        );
+
+        Note note = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int statusInt = cursor.getInt(5);
+                boolean status = (statusInt == 1);
+                note = new Note(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        status
+                );
+            }
+            cursor.close();
         }
+
+        db.close();
+        return note;
     }
 
-    public void Insert(String team1, int goal1, String team2, int goal2) {
-        SQLiteDatabase db = getWritableDatabase();
+    public List<Note> GetAllNotes() {
 
-        db.execSQL("INSERT into Notes('TeamHome', 'TeamGuest','GoalsHome','GoalsGuest') VALUES(?,?,?,?)", new Object[]{team1, team2, goal1, goal2});
-    }
+        List<Note> notesList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NOTES, null);
 
-    public boolean Search(int id) {
-        try {
-            SQLiteDatabase db = getReadableDatabase();
-            Cursor c = db.rawQuery("select * from Notes where ID = ?", new String[]{Integer.toString(id)});
-            db.close();
-            return c.getCount() != 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-//    public Note Select(int id) {
-//        SQLiteDatabase db = getReadableDatabase();
-//        Cursor c = db.rawQuery("select * FROM MatchResults", null);
-//        if (c.moveToFirst()) {
-//            do {
-//
-//                if (id == i) {
-//                    return match;
-//                }
-//            } while (c.moveToNext());
-//        }
-//        c.close();
-//        return null;
-//    }
-
-    public List<Note> SelectAll() {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery("select * FROM Notes", null);
-        List<Note> notes = new ArrayList<>();
-        if (c.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
-                int id = c.getInt(0);
-                String name = c.getString(1);
-                String text = c.getString(2);
-                int category = c.getInt(3);
-                int priority = c.getInt(4);
-                Note note = new Note(id, name, text, category, priority);
-                notes.add(note);
-            } while (c.moveToNext());
+                int statusInt = cursor.getInt(5);
+                boolean status = (statusInt == 1);
+                Note note = new Note(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        status);
+                notesList.add(note);
+            } while (cursor.moveToNext());
         }
-        c.close();
-        return notes;
+
+        cursor.close();
+        db.close();
+        return notesList;
     }
 
     public void Update(int id, ContentValues newValue) {
