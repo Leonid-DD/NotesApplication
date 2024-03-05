@@ -2,6 +2,7 @@ package com.example.notesapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +11,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
-
 
     private Context context;
     private LayoutInflater inflater;
@@ -63,7 +65,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
         // Set click listeners for buttons
         holder.noteEditButton.setOnClickListener(v -> {
-            // Implement your edit logic here
+            Intent i1 = new Intent(context.getApplicationContext(), EditNote.class);
+            i1.putExtra("noteID", String.valueOf(note.getNoteID()));
+            context.startActivity(i1);
         });
 
         holder.noteDeleteButton.setOnClickListener(v -> {

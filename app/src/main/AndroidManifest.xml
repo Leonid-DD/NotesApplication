@@ -24,6 +24,9 @@
         <activity android:name=".AddNote">
 
         </activity>
+        <activity android:name=".EditNote">
+
+        </activity>
     </application>
 
 </manifest>
