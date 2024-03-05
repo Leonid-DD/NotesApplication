@@ -1,5 +1,6 @@
 package com.example.notesapplication;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -61,11 +62,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COLUMN_CATEGORY_NAME + " TEXT)";
         db.execSQL(createCategoryTable);
 
+        insertCategory(db, "Мероприятие");
+        insertCategory(db, "Встреча");
+        insertCategory(db, "Напоминание");
+
         // Create priority reference table
         String createPriorityTable = "CREATE TABLE " + TABLE_PRIORITY + " ("
                 + COLUMN_PRIORITY_ID_REF + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_PRIORITY_NAME + " TEXT)";
         db.execSQL(createPriorityTable);
+
+        insertPriority(db, "Низкий");
+        insertPriority(db, "Средний");
+        insertPriority(db, "Высокий");
     }
 
     @Override
@@ -76,7 +85,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void Insert(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COLUMN_TITLE, note.getNoteName());
+        values.put(COLUMN_TITLE, note.getNoteTitle());
         values.put(COLUMN_NOTE_TEXT, note.getNoteText());
         values.put(COLUMN_CATEGORY_ID, note.getNoteCategory());
         values.put(COLUMN_PRIORITY_ID, note.getNotePriority());
@@ -85,6 +94,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    @SuppressLint("Range")
     public Note getNoteById(int noteId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
@@ -100,14 +110,14 @@ public class DBHelper extends SQLiteOpenHelper {
         Note note = null;
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int statusInt = cursor.getInt(5);
+                int statusInt = cursor.getInt(cursor.getColumnIndex(COLUMN_STATUS));
                 boolean status = (statusInt == 1);
                 note = new Note(
-                        cursor.getInt(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getInt(3),
-                        cursor.getInt(4),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TEXT)),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID)),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_PRIORITY_ID)),
                         status
                 );
             }
@@ -118,6 +128,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return note;
     }
 
+    @SuppressLint("Range")
     public List<Note> GetAllNotes() {
 
         List<Note> notesList = new ArrayList<>();
@@ -126,14 +137,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int statusInt = cursor.getInt(5);
+                int statusInt = cursor.getInt(cursor.getColumnIndex(COLUMN_STATUS));
                 boolean status = (statusInt == 1);
                 Note note = new Note(
-                        cursor.getInt(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getInt(3),
-                        cursor.getInt(4),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TEXT)),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID)),
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_PRIORITY_ID)),
                         status);
                 notesList.add(note);
             } while (cursor.moveToNext());
@@ -142,6 +153,98 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return notesList;
+    }
+
+    @SuppressLint("Range")
+    public List<String> GetCategories() {
+
+        List<String> categories = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CATEGORY, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                categories.add(cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return categories;
+
+    }
+
+    @SuppressLint("Range")
+    public String GetCategory(int id) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_CATEGORY,
+                null,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)},
+                null,
+                null,
+                null
+        );
+
+        String category = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                category = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME));
+            }
+            cursor.close();
+        }
+
+        db.close();
+        return category;
+
+    }
+
+    @SuppressLint("Range")
+    public List<String> GetPriorities() {
+
+        List<String> priorities = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PRIORITY, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                priorities.add(cursor.getString(cursor.getColumnIndex(COLUMN_PRIORITY_NAME)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return priorities;
+
+    }
+
+    @SuppressLint("Range")
+    public String GetPriority(int id) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_PRIORITY,
+                null,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)},
+                null,
+                null,
+                null
+        );
+
+        String priority = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                priority = cursor.getString(cursor.getColumnIndex(COLUMN_PRIORITY_NAME));
+            }
+            cursor.close();
+        }
+
+        db.close();
+        return priority;
+
     }
 
     public void Update(int id, ContentValues newValue) {
@@ -154,5 +257,17 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("delete from Notes where ID = ?", new String[]{Integer.toString(id)});
         db.close();
+    }
+
+    private void insertCategory(SQLiteDatabase db, String categoryName) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY_NAME, categoryName);
+        db.insert(TABLE_CATEGORY, null, values);
+    }
+
+    private void insertPriority(SQLiteDatabase db, String priorityName) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PRIORITY_NAME, priorityName);
+        db.insert(TABLE_PRIORITY, null, values);
     }
 }

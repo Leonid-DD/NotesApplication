@@ -3,7 +3,9 @@ package com.example.notesapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 
 import java.io.File;
@@ -39,5 +41,10 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(path);
         } catch (Exception e) {
         }
+    }
+
+    public void AddClick(View w){
+        Intent i1 = new Intent(getApplicationContext(), AddNote.class);
+        startActivity(i1);
     }
 }

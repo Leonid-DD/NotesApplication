@@ -17,12 +17,17 @@ import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
 
-    private List<Note> notesList;
+
+    private Context context;
     private LayoutInflater inflater;
+    private List<Note> notesList;
+    DBHelper DB;
 
     public NotesAdapter(Context context, List<Note> notesList) {
+        this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.notesList = notesList;
+        DB = DBHelper.getInstance(context);
     }
 
     @NonNull
@@ -36,12 +41,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Note note = notesList.get(position);
 
-        holder.noteNameTextView.setText(note.getNoteName());
+        holder.noteTitleTextView.setText(note.getNoteTitle());
         holder.noteTextTextView.setText(note.getNoteText());
 
         // Combine category and priority in one TextView
-        String categoryPriorityText = "Category: " + getCategoryName(note.getNoteCategory()) +
-                ", Priority: " + getPriorityName(note.getNotePriority());
+        String categoryPriorityText = "Категория: " + DB.GetCategory(note.getNoteCategory()) +
+                "\nПриоритет: " + DB.GetPriority(note.getNotePriority());
         holder.noteCategoryPriorityTextView.setText(categoryPriorityText);
 
         // Set the checkbox status
@@ -63,7 +68,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView noteNameTextView;
+        TextView noteTitleTextView;
         TextView noteTextTextView;
         TextView noteCategoryPriorityTextView;
         CheckBox noteStatusCheckBox;
@@ -72,7 +77,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
         ViewHolder(View itemView) {
             super(itemView);
-            noteNameTextView = itemView.findViewById(R.id.noteNameTextView);
+            noteTitleTextView = itemView.findViewById(R.id.noteTitleTextView);
             noteTextTextView = itemView.findViewById(R.id.noteTextTextView);
             noteCategoryPriorityTextView = itemView.findViewById(R.id.noteCategoryPriorityTextView);
             noteStatusCheckBox = itemView.findViewById(R.id.noteStatusCheckBox);
@@ -82,7 +87,6 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     }
 
     private String getCategoryName(int categoryId) {
-        // Implement logic to get category name based on categoryId
         return "Category " + categoryId; // Replace with actual logic
     }
 

@@ -6,4 +6,8 @@
     <string name="cancel">Отменить</string>
     <string name="noteConfirm">Подтвердить</string>
     <string name="search">Поиск</string>
+    <string name="etTitle">Заголовок заметки</string>
+    <string name="etText">Текст заметки</string>
+    <string name="ddLabelCat">Категория</string>
+    <string name="ddLabelPrior">Приоритет</string>
 </resources>

@@ -3,15 +3,15 @@ package com.example.notesapplication;
 public class Note {
 
     private int ID;
-    private String NoteName;
+    private String NoteTitle;
     private String NoteText;
     private int NoteCategory;
     private int NotePriority;
     private boolean NoteStatus;
 
-    public Note(int id, String name, String text, int category, int priority, boolean status) {
+    public Note(int id, String title, String text, int category, int priority, boolean status) {
         this.ID = id;
-        this.NoteName = name;
+        this.NoteTitle = title;
         this.NoteText = text;
         this.NoteCategory = category;
         this.NotePriority = priority;
@@ -21,8 +21,8 @@ public class Note {
     public int getNoteID() {
         return ID;
     }
-    public String getNoteName() {
-        return NoteName;
+    public String getNoteTitle() {
+        return NoteTitle;
     }
 
     public String getNoteText() {
@@ -42,8 +42,8 @@ public class Note {
         ID = id;
     }
 
-    public void setNoteName(String noteName) {
-        NoteName = noteName;
+    public void setNoteName(String noteTitle) {
+        NoteTitle = noteTitle;
     }
 
     public void setNoteText(String noteText) {
